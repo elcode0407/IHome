@@ -1,0 +1,63 @@
+{
+  "rooms": {
+    "bedroom1": {
+      "airConditioner": {
+        "image": "air-conditioner",
+        "name": "airConditioner",
+        "options": {
+          "degree": "16"
+        },
+        "state": "off",
+        "title": "Air  Con...",
+        "title2": "Air Conditioner"
+      },
+      "lamp": {
+        "imageOff": "lamp-outline",
+        "imageOn": "lamp",
+        "name": "lamp",
+        "state": "off",
+        "title": "Light"
+      }
+    },
+    "bedroom2": {
+      "lamp": {
+        "imageOff": "lamp-outline",
+        "imageOn": "lamp",
+        "name": "lamp",
+        "state": "off",
+        "title": "Light"
+      }
+    },
+    "kitchen": {
+      "kettle": {
+        "imageOff": "kettle-outline",
+        "imageOn": "kettle",
+        "name": "kettle",
+        "state": "off",
+        "title": "Kettle"
+      },
+      "lamp": {
+        "imageOff": "lamp-outline",
+        "imageOn": "lamp",
+        "name": "lamp",
+        "state": "off",
+        "title": "Light"
+      }
+    },
+    "livingRoom": {
+      "lamp": {
+        "imageOff": "lamp-outline",
+        "imageOn": "lamp",
+        "name": "lamp",
+        "state": "off",
+        "title": "Light"
+      },
+      "tv": {
+        "image": "youtube-tv",
+        "name": "tv",
+        "state": "off",
+        "title": "TV"
+      }
+    }
+  }
+}
