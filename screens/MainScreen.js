@@ -4,46 +4,52 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ScrollView } from "react-native";
 import { onValue, ref } from "firebase/database";
 import { useSelector } from "react-redux";
-function MainScreen() {
+import { FlatList } from "react-native";
+
+function MainScreen({ navigation }) {
+  // Get the user's name from Redux state
   const userName = useSelector(
     (state) => state.roomsDevices.database.userData?.name
   );
+
+  // Get the room data from Redux state
+  const roomsData = useSelector((state) => state.roomsDevices.database.rooms);
+
   return (
     <LinearGradient colors={["#D7DDE9", "#ffffff"]} style={{ flex: 1 }}>
+      {/* Display a welcome message with the user's name */}
       <Text style={styles.title}>Welcome, {userName}!</Text>
-      <ScrollView
+
+      {/* Render a horizontal list of rooms */}
+      <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.roomsContainer}
-      >
-        {/* создаю комнаты используя компонет Room */}
-        <Room name={"bedroom1"} title={"Bedroom 1"} iconName={"bed-king"}>
-          Bedroom 1
-        </Room>
-
-        <Room name={"livingRoom"} title={"Living Room"} iconName={"sofa"}>
-          Living Room
-        </Room>
-        <Room
-          name={"bedroom2"}
-          title={"Bedroom 2"}
-          iconName={"bed-king-outline"}
-        >
-          Bedroom 2
-        </Room>
-        <Room
-          name={"kitchen"}
-          title={"Kitchen"}
-          iconName={"silverware-fork-knife"}
-        >
-          Kitchen
-        </Room>
-      </ScrollView>
+        data={Object.values(roomsData)}
+        keyExtractor={(item) => item.data.name}
+        renderItem={({ item }) => (
+          <Room
+            name={item.data.name}
+            title={item.data.title}
+            iconName={item.data.iconName}
+            onPress={() => {
+              // Navigate to the RoomScreen with room details
+              navigation.navigate("RoomScreen", {
+                title: item.data.title,
+                roomName: item.data.name,
+              });
+            }}
+          >
+            {item.data.title}
+          </Room>
+        )}
+      />
     </LinearGradient>
   );
 }
 
 export default MainScreen;
+
 const styles = StyleSheet.create({
   roomsContainer: {
     justifyContent: "center",

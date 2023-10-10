@@ -7,22 +7,22 @@ import BouncyButton from "../ui/BouncyButton";
 import { useEffect } from "react";
 
 function RoomDetails({ route, navigation }) {
-  // обьявляю заголовок
+  // Set the title for the screen based on the route parameter
   useEffect(() => {
     navigation.setOptions({
       title: route.params.title,
     });
   }, []);
 
-  // с помошью редукс подключась к нужной базе с данными которые передали из Room
+  // Access the room's devices data from Redux state based on the route parameter
   const roomsDevices = useSelector(
-    (state) => state.roomsDevices.database.rooms[route.params.roomName]
+    (state) => state.roomsDevices.database.rooms[route.params.roomName]?.devices
   );
 
-  // функция для рендеринга девайсев
+  // Function for rendering each device item
   function renderDeviceItem({ item }) {
     return (
-      // передаю в компонент девайс url для состояния включения и выключения и имя девайса с комнатой для доступа в базу
+      // Render the Device component with the device details and room name for database access
       <Device item={item} roomName={route.params.roomName} />
     );
   }
@@ -32,18 +32,21 @@ function RoomDetails({ route, navigation }) {
       <View style={styles.container}>
         <Text style={styles.title}>Devices</Text>
 
-        {/* лист для отображения всех устройств в комнате */}
-        <FlatList
-          data={Object.values(roomsDevices)}
-          renderItem={renderDeviceItem}
-          keyExtractor={(item) => Math.random().toString()}
-          numColumns={2}
-          contentContainerStyle={{
-            flex: 1,
-
-            justifyContent: "space-between",
-          }}
-        />
+        {/* Render a list of devices in the room */}
+        {roomsDevices && (
+          <FlatList
+            data={Object.values(roomsDevices)}
+            renderItem={renderDeviceItem}
+            keyExtractor={(item) => Math.random().toString()}
+            numColumns={2}
+            contentContainerStyle={{
+              width: "100%",
+            }}
+            columnWrapperStyle={{
+              justifyContent: "space-around",
+            }}
+          />
+        )}
       </View>
     </LinearGradient>
   );

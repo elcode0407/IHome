@@ -9,37 +9,39 @@ import { ref, set } from "firebase/database";
 import auth, { database } from "../firebase/firebase";
 
 function DeviceDetails({ route, navigation }) {
-  //обьявляю заголовок
-
+  // Set the title of the screen
   useEffect(() => {
     navigation.setOptions({
       title: route.params.item.title2,
     });
   }, []);
 
+  // State variables for degree options
   const [degree2, setDegree2] = useState();
   const [degree3, setDegree3] = useState();
 
-  // подключаюсь к нужной базе с помошью данныз которые передали из компонента Device
+  // Connect to the device data in Redux state
   const device = useSelector(
     (state) =>
-      state.roomsDevices.database.rooms[route.params.roomName][
+      state.roomsDevices.database.rooms[route.params.roomName].devices[
         route.params.item.name
       ]
   );
 
+  // Update the degree options when they change
   useLayoutEffect(() => {
     setDegree2(device?.options?.degree);
     setDegree3(device?.options?.degree);
   }, [degree2, device]);
 
   const dispatch = useDispatch();
-  // нужно что бы понять какое состояние сейчас у кнопки Switch
 
+  // Render additional options based on the selected device
   let options = <></>;
   if (!!route.params.item?.options) {
     let degree = <></>;
 
+    // Render degree options if the device has them
     !!device.options?.degree ? (
       (degree = (
         <View
@@ -74,6 +76,7 @@ function DeviceDetails({ route, navigation }) {
               setDegree3(value);
             }}
             onSlidingComplete={(value) => {
+              // Update degree option in Redux state and Firebase
               dispatch(
                 changeOptionState({
                   optionName: "degree",
@@ -88,7 +91,7 @@ function DeviceDetails({ route, navigation }) {
                   auth.currentUser.uid +
                     "/rooms/" +
                     route.params.roomName +
-                    "/" +
+                    "/devices/" +
                     route.params.item.name +
                     "/options/degree"
                 ),
@@ -105,17 +108,19 @@ function DeviceDetails({ route, navigation }) {
 
     options = <View>{degree}</View>;
   }
+
   return (
     <LinearGradient colors={["#D7DDE9", "#ffffff"]} style={{ flex: 1 }}>
       <View style={styles.container}>
         <View style={styles.device}>
+          {/* Render the device icon */}
           <MaterialCommunityIcons
             name={route.params.url.url}
             size={70}
             color={"#3d62f4"}
           />
+          {/* Render additional options */}
           {options}
-          {/* кнопка для выключения или влючения устройства */}
         </View>
       </View>
     </LinearGradient>

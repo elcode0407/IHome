@@ -4,19 +4,22 @@ import { StyleSheet, Text, View } from "react-native";
 import MainScreen from "./screens/MainScreen";
 import RoomDetails from "./screens/RoomDetails";
 import DeviceDetails from "./screens/DeviceDetails";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import Device from "./components/Device";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { ref, get, onValue, set } from "firebase/database";
-import { authenticated, logout, setData } from "./redux/device";
+import { ref, get, onValue, set, remove } from "firebase/database";
+import { authenticated, logout, removeRoom, setData } from "./redux/device";
 import auth, { app, database } from "./firebase/firebase";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import IconButton from "./components/ui/IconButton";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
+import AddRoom from "./screens/AddRoom";
+import AddDevice from "./screens/AddDevice";
+import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
 
@@ -67,7 +70,6 @@ function Navigation() {
 function AuthenticatedStack() {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.roomsDevices);
-
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => {
     const db = ref(database, auth.currentUser.uid + "/");
@@ -99,24 +101,74 @@ function AuthenticatedStack() {
         <Stack.Screen
           name="HomeScreen"
           component={MainScreen}
-          options={{
+          options={({ navigation }) => ({
             title: "Home",
             headerRight: ({ tintColor }) => (
-              <IconButton
-                icon={"exit"}
-                color={tintColor}
-                size={24}
-                onPress={() => {
-                  dispatch(logout());
-                  auth.signOut();
-                }}
-              />
+              <View style={{ flexDirection: "row" }}>
+                <IconButton
+                  icon={"exit"}
+                  color={tintColor}
+                  size={24}
+                  onPress={() => {
+                    dispatch(logout());
+                    auth.signOut();
+                  }}
+                />
+                <IconButton
+                  icon={"add-circle-outline"}
+                  color={tintColor}
+                  size={26}
+                  onPress={() => {
+                    navigation.navigate("AddRoom");
+                  }}
+                />
+              </View>
             ),
-          }}
+          })}
         />
-        <Stack.Screen name="RoomScreen" component={RoomDetails} />
+        <Stack.Screen
+          name="RoomScreen"
+          component={RoomDetails}
+          options={({ route, navigation }) => ({
+            headerRight: ({ tintColor }) => (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <IconButton
+                  icon={"add-circle-outline"}
+                  color={tintColor}
+                  size={28}
+                  onPress={() => {
+                    navigation.navigate("AddDevice", {
+                      roomName: route.params.roomName,
+                    });
+                  }}
+                />
+                <Ionicons
+                  name="remove-circle-outline"
+                  color={"red"}
+                  size={28}
+                  onPress={async () => {
+                    await remove(
+                      ref(
+                        database,
+                        auth.currentUser.uid + "/rooms/" + route.params.roomName
+                      )
+                    );
+                    dispatch(
+                      removeRoom({
+                        name: route.params.roomName,
+                      })
+                    );
+                    navigation.navigate("HomeScreen");
+                  }}
+                />
+              </View>
+            ),
+          })}
+        />
         <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
         <Stack.Screen name="Device" component={Device} />
+        <Stack.Screen name="AddRoom" component={AddRoom} />
+        <Stack.Screen name="AddDevice" component={AddDevice} />
       </Stack.Navigator>
     </Provider>
   );

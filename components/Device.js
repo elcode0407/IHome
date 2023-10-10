@@ -2,33 +2,40 @@ import { useNavigation } from "@react-navigation/native";
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
 import BouncyButton from "../ui/BouncyButton";
 import { useDispatch, useSelector } from "react-redux";
-import { changeState } from "../redux/device";
-import { ref, set } from "firebase/database";
+import { changeState, removeDevice } from "../redux/device";
+import { ref, remove, set } from "firebase/database";
 import auth, { database } from "../firebase/firebase";
 
 function Device({ item, roomName }) {
+  // Get the navigation object from the react-navigation library
   const navigation = useNavigation();
+
+  // Access the device data from the Redux store based on the room and device name
   const device = useSelector(
-    (state) => state.roomsDevices.database.rooms[roomName][item.name]
+    (state) => state.roomsDevices.database.rooms[roomName]?.devices[item.name]
   );
 
+  // Initialize Redux dispatch
   const dispatch = useDispatch();
+
+  // Function to handle device state toggle (on/off)
   async function onPress() {
     if (device.state === "off") {
-      // если выключен то включаю с помошью функции которое я обьявил в Slice
-      set(
+      // If the device is off, turn it on
+      await set(
         ref(
           database,
           auth.currentUser.uid +
             "/rooms/" +
             roomName +
-            "/" +
+            "/devices/" +
             item.name +
             "/state"
         ),
         "on"
       );
 
+      // Dispatch a Redux action to update the state
       dispatch(
         changeState({
           roomName: roomName,
@@ -37,19 +44,21 @@ function Device({ item, roomName }) {
         })
       );
     } else {
-      set(
+      // If the device is on, turn it off
+      await set(
         ref(
           database,
           auth.currentUser.uid +
             "/rooms/" +
             roomName +
-            "/" +
+            "/devices/" +
             item.name +
             "/state"
         ),
         "off"
       );
-      // если включен то выключаю с помошью функции которое я обьявил в Slice
+
+      // Dispatch a Redux action to update the state
       dispatch(
         changeState({
           roomName: roomName,
@@ -60,10 +69,28 @@ function Device({ item, roomName }) {
     }
   }
 
-  return (
-    // при нажатии на девайс ,перехожу в его страницу передавая имя устройства и комнату ,опять же для доступа к базе
+  // Function to handle device deletion
+  async function onDelete() {
+    // Remove the device data from Firebase Realtime Database
+    await remove(
+      ref(
+        database,
+        auth.currentUser.uid + "/rooms/" + roomName + "/devices/" + item.name
+      )
+    );
 
+    // Dispatch a Redux action to remove the device from the store
+    dispatch(
+      removeDevice({
+        roomName: roomName,
+        name: item.name,
+      })
+    );
+  }
+
+  return (
     <View>
+      {/* Render the device as a BouncyButton */}
       <BouncyButton
         source={
           !!!item.imageOn
@@ -71,14 +98,16 @@ function Device({ item, roomName }) {
             : { off: item.imageOff, on: item.imageOn }
         }
         style={[
-          device.state !== "off"
+          device?.state !== "off"
             ? { backgroundColor: "#405ef2" }
             : { backgroundColor: "#eff3fc" },
           styles.container,
         ]}
         styleText={styles.deviceName}
         text={item.title}
+        onDelete={onDelete}
         onLongPress={() => {
+          // Navigate to the DeviceDetails screen when long-pressed (if options are available)
           !!item?.options
             ? navigation.navigate("DeviceDetails", {
                 item: item,
@@ -90,9 +119,10 @@ function Device({ item, roomName }) {
             : {};
         }}
         onShortPress={() => {
+          // Toggle the device state when short-pressed
           onPress();
         }}
-        isEnabled={device.state === "off" ? false : true}
+        isEnabled={device?.state === "off" ? false : true}
       />
     </View>
   );
@@ -108,8 +138,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderWidth: 1,
     borderColor: "#b7ced9",
-    marginVertical: 20,
-    marginHorizontal: 10,
+    marginTop: 10,
+    marginLeft: 8,
+    marginRight: 1,
     borderRadius: 10,
   },
   containerOn: {

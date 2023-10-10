@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { Component } from "react";
 import {
   View,
@@ -44,6 +44,7 @@ class BouncyButton extends Component {
       isEnabled,
       onShortPress,
       onLongPress,
+      onDelete,
       text,
       style,
       source,
@@ -95,6 +96,14 @@ class BouncyButton extends Component {
                 ios_backgroundColor="#3d62f4"
                 onValueChange={onShortPress}
                 value={isEnabled}
+              />
+            </View>
+            <View style={{ marginLeft: 50 }}>
+              <Ionicons
+                name="md-trash-outline"
+                color={"red"}
+                size={23}
+                onPress={onDelete}
               />
             </View>
           </View>

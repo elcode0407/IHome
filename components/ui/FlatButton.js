@@ -3,10 +3,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 function FlatButton({ children, onPress }) {
   return (
     <Pressable
+      // Style for the button, with an opacity change when pressed
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
       onPress={onPress}
     >
       <View>
+        {/* Text inside the flat button */}
         <Text style={styles.buttonText}>{children}</Text>
       </View>
     </Pressable>
@@ -21,10 +23,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.7, // Opacity change when button is pressed
   },
   buttonText: {
     textAlign: "center",
-    color: "#ffffff",
+    color: "#ffffff", // Text color
   },
 });

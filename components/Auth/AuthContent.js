@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
 
+  // State to track invalid credentials and input errors
   const [credentialsInvalid, setCredentialsInvalid] = useState({
     email: false,
     password: false,
@@ -16,31 +17,36 @@ function AuthContent({ isLogin, onAuthenticate }) {
     confirmPassword: false,
   });
 
+  // Handler for switching authentication mode (login or signup)
   function switchAuthModeHandler() {
     if (isLogin) {
-      navigation.replace("Signup");
+      navigation.replace("Signup"); // Switch to signup mode
     } else {
-      navigation.replace("Login");
+      navigation.replace("Login"); // Switch to login mode
     }
   }
 
+  // Handler for submitting the authentication form
   function submitHandler(credentials) {
     let { email, name, confirmEmail, password, confirmPassword } = credentials;
 
     email = email.trim();
     password = password.trim();
 
+    // Check the validity of email and password length
     const emailIsValid = email.includes("@");
     const passwordIsValid = password.length > 6;
     const emailsAreEqual = email === confirmEmail;
     const passwordsAreEqual = password === confirmPassword;
 
+    // If invalid data is entered, display an error message
     if (
       !emailIsValid ||
       !passwordIsValid ||
       (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
     ) {
       Alert.alert("Invalid input", "Please check your entered credentials.");
+      // Set state to track errors
       setCredentialsInvalid({
         email: !emailIsValid,
         confirmEmail: !emailIsValid || !emailsAreEqual,

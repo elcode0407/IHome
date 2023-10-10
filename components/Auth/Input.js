@@ -10,9 +10,11 @@ function Input({
 }) {
   return (
     <View style={styles.inputContainer}>
+      {/* Display the label for the input */}
       <Text style={[styles.label, isInvalid && styles.labelInvalid]}>
         {label}
       </Text>
+      {/* Render the text input field */}
       <TextInput
         style={[styles.input, isInvalid && styles.inputInvalid]}
         keyboardType={keyboardType}
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   labelInvalid: {
-    color: "#2613f3",
+    color: "#2613f3", // Color for invalid labels
   },
   input: {
     paddingVertical: 8,
@@ -45,6 +47,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   inputInvalid: {
-    backgroundColor: "#bfe9fc",
+    backgroundColor: "#bfe9fc", // Background color for invalid inputs
   },
 });

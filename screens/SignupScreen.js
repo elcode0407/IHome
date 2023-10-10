@@ -10,19 +10,39 @@ import auth, { app, database } from "../firebase/firebase";
 import { LinearGradient } from "expo-linear-gradient";
 
 function SignupScreen({ navigation }) {
+  // State to control loading state
   const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize Redux dispatch
   const dispatch = useDispatch();
+
+  // Function to handle user signup
   async function signUp({ email, password, name }) {
+    // Set loading state while signup is in progress
     setIsLoading(true);
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log(user.uid);
-        // ...
-        await set(ref(database, `${user.uid}/`), {
-          rooms: {
-            masterBedroom: {
+
+    try {
+      // Create a user with email and password using Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Get the signed-in user
+      const user = userCredential.user;
+      console.log(user.uid);
+
+      // Create initial user data in Firebase Realtime Database
+      await set(ref(database, `${user.uid}/`), {
+        rooms: {
+          bedroom1: {
+            data: {
+              name: "bedroom1",
+              title: "Bedroom 1",
+              iconName: "bed-king",
+            },
+            devices: {
               airConditioner: {
                 image: "air-conditioner",
                 name: "airConditioner",
@@ -41,7 +61,14 @@ function SignupScreen({ navigation }) {
                 title: "Light",
               },
             },
-            guestBedroom: {
+          },
+          bedroom2: {
+            data: {
+              name: "bedroom2",
+              title: "Bedroom 2",
+              iconName: "bed-king-outline",
+            },
+            devices: {
               lamp: {
                 imageOff: "lamp-outline",
                 imageOn: "lamp",
@@ -50,7 +77,14 @@ function SignupScreen({ navigation }) {
                 title: "Light",
               },
             },
-            kitchen: {
+          },
+          kitchen: {
+            data: {
+              name: "kitchen",
+              title: "Kitchen",
+              iconName: "silverware-fork-knife",
+            },
+            devices: {
               kettle: {
                 imageOff: "kettle-outline",
                 imageOn: "kettle",
@@ -66,7 +100,14 @@ function SignupScreen({ navigation }) {
                 title: "Light",
               },
             },
-            livingRoom: {
+          },
+          livingRoom: {
+            data: {
+              name: "livingRoom",
+              title: "Living Room",
+              iconName: "sofa",
+            },
+            devices: {
               lamp: {
                 imageOff: "lamp-outline",
                 imageOn: "lamp",
@@ -82,21 +123,28 @@ function SignupScreen({ navigation }) {
               },
             },
           },
-          userData: {
-            name: name,
-          },
-        });
-        dispatch(authenticated({ token: user.uid }));
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-        setIsLoading(false);
-        Alert.alert("Authentication failed!", errorMessage);
+        },
+        userData: {
+          name: name,
+        },
       });
+
+      // Dispatch user authentication action
+      dispatch(authenticated({ token: user.uid }));
+    } catch (error) {
+      // Handle any errors that occur during signup
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      // Set loading state back to false
+      setIsLoading(false);
+
+      // Show an alert with the error message
+      Alert.alert("Authentication failed!", errorMessage);
+    }
   }
 
+  // If loading, display a loading overlay
   if (isLoading) {
     return (
       <LinearGradient colors={["#D7DDE9", "#ffffff"]} style={{ flex: 1 }}>
@@ -104,9 +152,12 @@ function SignupScreen({ navigation }) {
       </LinearGradient>
     );
   }
+
+  // If not loading, display the signup form
   return (
     <LinearGradient colors={["#D7DDE9", "#ffffff"]} style={{ flex: 1 }}>
       <ScrollView>
+        {/* Render the authentication content with the signUp function */}
         <AuthContent onAuthenticate={signUp} />
       </ScrollView>
     </LinearGradient>
